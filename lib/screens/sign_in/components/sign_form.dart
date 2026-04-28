@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // Import HTTP
+import 'dart:convert';
 
 import '../../../components/custom_surfix_icon.dart';
 import '../../../components/form_error.dart';
@@ -16,9 +18,10 @@ class SignForm extends StatefulWidget {
 
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
-  String? email;
+  String? username; // Diubah dari email ke username
   String? password;
   bool? remember = false;
+  bool isLoading = false; // Untuk loading indicator
   final List<String?> errors = [];
 
   void addError({String? error}) {
@@ -37,73 +40,52 @@ class _SignFormState extends State<SignForm> {
     }
   }
 
+  // FUNGSI API LOGIN
+  Future<void> loginUser() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    const String apiUrl = "https://api.ppb.widiarrohman.my.id/api/2026/uts/B/kelompok1/login";
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "username": username,
+          "password": password,
+        }),
+      );
+
+      // Cek apakah body berisi "Login berhasil"
+      if (response.body.contains("Login berhasil")) {
+        removeError(error: "Login gagal. Cek username/password");
+        if (!mounted) return;
+        
+        // Pindah ke halaman sukses
+        Navigator.pushNamed(context, LoginSuccessScreen.routeName);
+      } else {
+        addError(error: "Login gagal. Cek username/password");
+      }
+    } catch (e) {
+      addError(error: "Tidak ada koneksi internet");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
       child: Column(
         children: [
-          TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            onSaved: (newValue) => email = newValue,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                removeError(error: kEmailNullError);
-              } else if (emailValidatorRegExp.hasMatch(value)) {
-                removeError(error: kInvalidEmailError);
-              }
-              return;
-            },
-            validator: (value) {
-              if (value!.isEmpty) {
-                addError(error: kEmailNullError);
-                return "";
-              } else if (!emailValidatorRegExp.hasMatch(value)) {
-                addError(error: kInvalidEmailError);
-                return "";
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              labelText: "Email",
-              hintText: "Enter your email",
-              // If  you are using latest version of flutter then lable text and hint text shown like this
-              // if you r using flutter less then 1.20.* then maybe this is not working properly
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
-            ),
-          ),
+          buildUserNameField(), // Menggunakan field username
           const SizedBox(height: 20),
-          TextFormField(
-            obscureText: true,
-            onSaved: (newValue) => password = newValue,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                removeError(error: kPassNullError);
-              } else if (value.length >= 8) {
-                removeError(error: kShortPassError);
-              }
-              return;
-            },
-            validator: (value) {
-              if (value!.isEmpty) {
-                addError(error: kPassNullError);
-                return "";
-              } else if (value.length < 8) {
-                addError(error: kShortPassError);
-                return "";
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              labelText: "Password",
-              hintText: "Enter your password",
-              // If  you are using latest version of flutter then lable text and hint text shown like this
-              // if you r using flutter less then 1.20.* then maybe this is not working properly
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
-            ),
-          ),
+          buildPasswordField(),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -130,18 +112,82 @@ class _SignFormState extends State<SignForm> {
           ),
           FormError(errors: errors),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                KeyboardUtil.hideKeyboard(context);
-                Navigator.pushNamed(context, LoginSuccessScreen.routeName);
-              }
-            },
-            child: const Text("Continue"),
+          // Tombol dengan Loading Indicator
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: isLoading 
+                ? null 
+                : () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      KeyboardUtil.hideKeyboard(context);
+                      loginUser();
+                    }
+                  },
+              child: isLoading 
+                ? const CircularProgressIndicator(color: Colors.white) 
+                : const Text("Continue"),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  TextFormField buildPasswordField() {
+    return TextFormField(
+      obscureText: true,
+      onSaved: (newValue) => password = newValue,
+      onChanged: (value) {
+        if (value.isNotEmpty) {
+          removeError(error: kPassNullError);
+        } else if (value.length >= 8) {
+          removeError(error: kShortPassError);
+        }
+        password = value;
+      },
+      validator: (value) {
+        if (value!.isEmpty) {
+          addError(error: kPassNullError);
+          return "";
+        } else if (value.length < 4) { // Sesuaikan minimal panjang pass jika perlu
+          addError(error: kShortPassError);
+          return "";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Password",
+        hintText: "Enter your password",
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
+      ),
+    );
+  }
+
+  TextFormField buildUserNameField() {
+    return TextFormField(
+      onSaved: (newValue) => username = newValue,
+      onChanged: (value) {
+        if (value.isNotEmpty) {
+          removeError(error: "Username tidak boleh kosong");
+        }
+        username = value;
+      },
+      validator: (value) {
+        if (value!.isEmpty) {
+          addError(error: "Username tidak boleh kosong");
+          return "";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Username",
+        hintText: "Enter your username",
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/User.svg"),
       ),
     );
   }
