@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../../components/product_card.dart';
 import '../../../models/Product.dart';
+import '../../../services/api_service.dart'; // Import service baru
 import '../../details/details_screen.dart';
 import '../../products/products_screen.dart';
 import 'section_title.dart';
@@ -17,40 +17,37 @@ class PopularProducts extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SectionTitle(
             title: "Popular Products",
-            press: () {
-              Navigator.pushNamed(context, ProductsScreen.routeName);
-            },
+            press: () => Navigator.pushNamed(context, ProductsScreen.routeName),
           ),
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              ...List.generate(
-                demoProducts.length,
-                (index) {
-                  if (demoProducts[index].isPopular) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: ProductCard(
-                        product: demoProducts[index],
-                        onPress: () => Navigator.pushNamed(
-                          context,
-                          DetailsScreen.routeName,
-                          arguments: ProductDetailsArguments(
-                              product: demoProducts[index]),
-                        ),
+        FutureBuilder<List<Product>>(
+          future: ApiService().fetchProducts(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final products = snapshot.data ?? [];
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  products.length,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: ProductCard(
+                      product: products[index],
+                      onPress: () => Navigator.pushNamed(
+                        context,
+                        DetailsScreen.routeName,
+                        arguments:
+                            ProductDetailsArguments(product: products[index]),
                       ),
-                    );
-                  }
-
-                  return const SizedBox
-                      .shrink(); // here by default width and height is 0
-                },
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(width: 20),
-            ],
-          ),
+            );
+          },
         )
       ],
     );

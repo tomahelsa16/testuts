@@ -17,6 +17,7 @@ class ProductImages extends StatefulWidget {
 
 class _ProductImagesState extends State<ProductImages> {
   int selectedImage = 0;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -25,10 +26,13 @@ class _ProductImagesState extends State<ProductImages> {
           width: 238,
           child: AspectRatio(
             aspectRatio: 1,
-            child: Image.asset(widget.product.images[selectedImage]),
+            // Menggunakan widget.product untuk mengakses data dari class utama
+            child: widget.product.images[selectedImage].startsWith("http")
+                ? Image.network(widget.product.images[selectedImage])
+                : Image.asset(widget.product.images[selectedImage]),
           ),
         ),
-        // SizedBox(height: 20),
+        const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -51,26 +55,22 @@ class _ProductImagesState extends State<ProductImages> {
   }
 }
 
-class SmallProductImage extends StatefulWidget {
-  const SmallProductImage(
-      {super.key,
-      required this.isSelected,
-      required this.press,
-      required this.image});
+class SmallProductImage extends StatelessWidget {
+  const SmallProductImage({
+    super.key,
+    required this.isSelected,
+    required this.press,
+    required this.image,
+  });
 
   final bool isSelected;
   final VoidCallback press;
   final String image;
 
   @override
-  State<SmallProductImage> createState() => _SmallProductImageState();
-}
-
-class _SmallProductImageState extends State<SmallProductImage> {
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.press,
+      onTap: press,
       child: AnimatedContainer(
         duration: defaultDuration,
         margin: const EdgeInsets.only(right: 16),
@@ -81,9 +81,13 @@ class _SmallProductImageState extends State<SmallProductImage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: kPrimaryColor.withOpacity(widget.isSelected ? 1 : 0)),
+            color: kPrimaryColor.withOpacity(isSelected ? 1 : 0),
+          ),
         ),
-        child: Image.asset(widget.image),
+        // Menyesuaikan gambar kecil agar bisa membaca URL dari API
+        child: image.startsWith("http")
+            ? Image.network(image)
+            : Image.asset(image),
       ),
     );
   }

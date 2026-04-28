@@ -19,6 +19,25 @@ class Product {
     required this.price,
     required this.description,
   });
+
+  // Factory untuk memetakan JSON dari API ke Model Flutter
+  factory Product.fromJson(Map<String, dynamic> json, int index) {
+    return Product(
+      id: index, // Menggunakan index sebagai ID sementara
+      title: json['name'],
+      description: "Nikmati hidangan lezat ${json['name']} dengan harga terjangkau.",
+      images: [json['image']], // API hanya kirim 1 string image, kita masukkan ke list
+      rating: (json['star'] as num).toDouble(),
+      price: (json['price'] as num).toDouble(),
+      isPopular: true, // Kita set true agar muncul di Popular Product
+      colors: [
+        const Color(0xFFF6625E),
+        const Color(0xFF836DB8),
+        const Color(0xFFDECB9C),
+        Colors.white,
+      ],
+    );
+  }
 }
 
 // Our demo Products
