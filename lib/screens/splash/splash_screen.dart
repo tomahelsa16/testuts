@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http; // Pastikan package http sudah di-import
 import '../../constants.dart';
 import '../sign_in/sign_in_screen.dart';
 import 'components/splash_content.dart';
@@ -15,21 +15,49 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   int currentPage = 0;
+  
+  // Data awal dengan teks default/loading
   List<Map<String, String>> splashData = [
     {
-      "text": "Welcome to Tokoto, Let’s shop!",
+      "text": "Loading data...",
       "image": "assets/images/splash_1.png"
     },
     {
-      "text":
-          "We help people conect with store \naround United State of America",
+      "text": "Loading data...",
       "image": "assets/images/splash_2.png"
     },
     {
-      "text": "We show the easy way to shop. \nJust stay at home with us",
+      "text": "Loading data...",
       "image": "assets/images/splash_3.png"
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchApiData(); // Mengambil data API saat aplikasi pertama kali dimuat
+  }
+
+  // Fungsi untuk mengambil data dari API sesuai permintaan kamu
+  Future<void> fetchApiData() async {
+    try {
+      final response = await http.get(
+        Uri.parse("https://api.ppb.widiarrohman.my.id/api/2026/uts/B/kelompok1/check"),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          splashData[0]["text"] = response.body;
+          splashData[1]["text"] = response.body;
+          splashData[2]["text"] = response.body;
+        });
+      }
+    } catch (e) {
+      // Jika terjadi error (misal: tidak ada internet), tampilkan error di log
+      debugPrint("Gagal mengambil data API: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +111,20 @@ class _SplashScreenState extends State<SplashScreen> {
                         onPressed: () {
                           Navigator.pushNamed(context, SignInScreen.routeName);
                         },
-                        child: const Text("Continue"),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 56),
+                          backgroundColor: kPrimaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          "Continue",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                       const Spacer(),
                     ],

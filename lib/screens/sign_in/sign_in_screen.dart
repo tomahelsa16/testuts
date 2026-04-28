@@ -1,13 +1,52 @@
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http; // Import http
 import '../../components/no_account_text.dart';
 import '../../components/socal_card.dart';
 import 'components/sign_form.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
   static String routeName = "/sign_in";
 
   const SignInScreen({super.key});
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  // Variabel untuk menyimpan teks dari API
+  String apiText = "Loading...";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchWelcomeText();
+  }
+
+  // Fungsi untuk mengambil data dari API
+  Future<void> fetchWelcomeText() async {
+    try {
+      final response = await http.get(
+        Uri.parse("https://api.ppb.widiarrohman.my.id/api/2026/uts/B/kelompok1/check"),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          // Update teks dengan response body dari API
+          apiText = response.body;
+        });
+      } else {
+        setState(() {
+          apiText = "Gagal memuat data";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        apiText = "Error: $e";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,8 +70,9 @@ class SignInScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Text(
-                    "Sign in with your email and password  \nor continue with social media",
+                  // Teks ini sekarang akan berubah sesuai hasil API
+                  Text(
+                    apiText,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
