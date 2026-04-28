@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shop_app/screens/cart/cart_screen.dart';
-
 import '../../models/Product.dart';
 import 'components/color_dots.dart';
 import 'components/product_description.dart';
@@ -15,7 +13,6 @@ class DetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil data product dari arguments
     final ProductDetailsArguments args =
         ModalRoute.of(context)!.settings.arguments as ProductDetailsArguments;
     final product = args.product;
@@ -33,40 +30,30 @@ class DetailsScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(),
-              padding: EdgeInsets.zero,
-              elevation: 0,
               backgroundColor: Colors.white,
+              elevation: 0,
             ),
             child: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
           ),
         ),
         actions: [
-          Row(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(right: 20),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+          Container(
+            margin: const EdgeInsets.only(right: 20, top: 8, bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  "${product.rating}",
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
                 ),
-                child: Row(
-                  children: [
-                    // Ambil rating langsung dari data API
-                    Text(
-                      "${product.rating}",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    SvgPicture.asset("assets/icons/Star Icon.svg"),
-                  ],
-                ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                SvgPicture.asset("assets/icons/Star Icon.svg"),
+              ],
+            ),
           ),
         ],
       ),
@@ -77,36 +64,15 @@ class DetailsScreen extends StatelessWidget {
             color: Colors.white,
             child: Column(
               children: [
-                ProductDescription(
-                  product: product,
-                  pressOnSeeMore: () {},
-                ),
+                ProductDescription(product: product, pressOnSeeMore: () {}),
                 TopRoundedContainer(
                   color: const Color(0xFFF6F7F9),
-                  child: Column(
-                    children: [
-                      ColorDots(product: product),
-                    ],
-                  ),
+                  child: ColorDots(product: product),
                 ),
               ],
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: TopRoundedContainer(
-        color: Colors.white,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, CartScreen.routeName);
-              },
-              child: const Text("Add To Cart"),
-            ),
-          ),
-        ),
       ),
     );
   }
