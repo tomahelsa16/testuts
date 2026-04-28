@@ -1,16 +1,25 @@
 import 'Product.dart';
 
 class Cart {
-  final Product product;
+  final String name;
+  final int price;
   final int numOfItem;
+  final int totalPrice;
 
-  Cart({required this.product, required this.numOfItem});
+  Cart({
+    required this.name,
+    required this.price,
+    required this.numOfItem,
+    required this.totalPrice,
+  });
+
+  // Fungsi untuk konversi dari JSON API ke Model
+  factory Cart.fromJson(Map<String, dynamic> json) {
+    return Cart(
+      name: json['name'],
+      price: json['price'],
+      numOfItem: json['count'],
+      totalPrice: json['total_price'],
+    );
+  }
 }
-
-// Demo data for our cart
-
-List<Cart> demoCarts = [
-  Cart(product: demoProducts[0], numOfItem: 2),
-  Cart(product: demoProducts[1], numOfItem: 1),
-  Cart(product: demoProducts[3], numOfItem: 1),
-];
