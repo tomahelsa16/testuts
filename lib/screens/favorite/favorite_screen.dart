@@ -31,9 +31,6 @@ class FavoriteScreen extends StatelessWidget {
                     return Center(child: Text("Error: ${snapshot.error}"));
                   }
 
-                  // Kita filter produk yang isFavourite == true
-                  // Catatan: Karena API kita belum punya field isFavourite, 
-                  // secara default semua akan masuk atau kosong tergantung model.
                   final favorites = snapshot.data!
                       .where((product) => product.isFavourite)
                       .toList();

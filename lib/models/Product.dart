@@ -20,7 +20,6 @@ class Product {
     required this.description,
   });
 
-  // Format harga ke Rupiah dengan titik ribuan
   String get formattedPrice {
     return price.toStringAsFixed(0).replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),

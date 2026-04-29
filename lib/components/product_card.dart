@@ -55,7 +55,6 @@ class ProductCard extends StatelessWidget {
                     color: kPrimaryColor,
                   ),
                 ),
-                // Icon Heart ... (tetap seperti kode awal Anda)
               ],
             )
           ],

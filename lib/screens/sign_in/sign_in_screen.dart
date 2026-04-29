@@ -14,7 +14,6 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  // Variabel untuk menyimpan teks dari API
   String apiText = "Loading...";
 
   @override
@@ -32,7 +31,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (response.statusCode == 200) {
         setState(() {
-          // Update teks dengan response body dari API
           apiText = response.body;
         });
       } else {
@@ -70,7 +68,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  // Teks ini sekarang akan berubah sesuai hasil API
                   Text(
                     apiText,
                     textAlign: TextAlign.center,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Import HTTP
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../../components/custom_surfix_icon.dart';
@@ -18,10 +18,10 @@ class SignForm extends StatefulWidget {
 
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
-  String? username; // Diubah dari email ke username
+  String? username;
   String? password;
   bool? remember = false;
-  bool isLoading = false; // Untuk loading indicator
+  bool isLoading = false; 
   final List<String?> errors = [];
 
   void addError({String? error}) {
@@ -40,7 +40,6 @@ class _SignFormState extends State<SignForm> {
     }
   }
 
-  // FUNGSI API LOGIN
   Future<void> loginUser() async {
     setState(() {
       isLoading = true;
@@ -58,12 +57,10 @@ class _SignFormState extends State<SignForm> {
         }),
       );
 
-      // Cek apakah body berisi "Login berhasil"
       if (response.body.contains("Login berhasil")) {
         removeError(error: "Login gagal. Cek username/password");
         if (!mounted) return;
-        
-        // Pindah ke halaman sukses
+
         Navigator.pushNamed(context, LoginSuccessScreen.routeName);
       } else {
         addError(error: "Login gagal. Cek username/password");
@@ -83,7 +80,7 @@ class _SignFormState extends State<SignForm> {
       key: _formKey,
       child: Column(
         children: [
-          buildUserNameField(), // Menggunakan field username
+          buildUserNameField(),
           const SizedBox(height: 20),
           buildPasswordField(),
           const SizedBox(height: 20),
@@ -112,7 +109,6 @@ class _SignFormState extends State<SignForm> {
           ),
           FormError(errors: errors),
           const SizedBox(height: 16),
-          // Tombol dengan Loading Indicator
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -152,7 +148,7 @@ class _SignFormState extends State<SignForm> {
         if (value!.isEmpty) {
           addError(error: kPassNullError);
           return "";
-        } else if (value.length < 4) { // Sesuaikan minimal panjang pass jika perlu
+        } else if (value.length < 4) { 
           addError(error: kShortPassError);
           return "";
         }

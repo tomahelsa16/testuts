@@ -35,10 +35,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    fetchApiData(); // Mengambil data API saat aplikasi pertama kali dimuat
+    fetchApiData();
   }
 
-  // Fungsi untuk mengambil data dari API sesuai permintaan kamu
   Future<void> fetchApiData() async {
     try {
       final response = await http.get(
@@ -53,7 +52,6 @@ class _SplashScreenState extends State<SplashScreen> {
         });
       }
     } catch (e) {
-      // Jika terjadi error (misal: tidak ada internet), tampilkan error di log
       debugPrint("Gagal mengambil data API: $e");
     }
   }
